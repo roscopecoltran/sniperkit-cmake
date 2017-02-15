@@ -1,0 +1,12 @@
+[submodule "modules/polly"]
+	path = modules/polly
+	url = https://github.com/ruslo/polly
+[submodule "modules/hunter"]
+	path = modules/hunter
+	url = https://github.com/ruslo/hunter
+[submodule "modules/dockcross"]
+	path = modules/dockcross
+	url = https://github.com/dockcross/dockcross
+[submodule "modules/unity-n-native"]
+	path = modules/unity-n-native
+	url = https://github.com/shadowmint/unity-n-native

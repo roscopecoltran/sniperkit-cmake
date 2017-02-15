@@ -1,0 +1,11 @@
+Author: Luc Michalski
+DlibForUnity - Hunter Edition
+
+FEATURES:
++ Generated with hunter package manager
++ Added NPP Native Plugin dynamic wrapper
+
+QUICK TIPS:
+- Always make sure to copy out the preview buffer before processing on it (use memcpy).
+
+Thank you very much!

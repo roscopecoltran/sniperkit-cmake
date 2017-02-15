@@ -1,0 +1,69 @@
+hunter:
+polly:
+toolchains:
+  xcode:
+    active: ["macosx", "iphoneos"]
+    valid: ["macosx", "iphoneos", "iphonesimulator"]    
+    toolchains:
+      macosx:
+        only_active: false
+        valid: i386;x86_64
+        sdk: ${{.}}
+      iphoneos:
+        only_active: false
+        valid: armv7;arm64
+        sdk: ${{.}}
+      iphonesimulator:
+        only_active: false
+        valid: i386;x86_64
+        sdk: ${{.}}
+    command:
+      ios:
+        sdk_version: ""
+      osx:
+        sdk_version: ""
+    metas:
+      description: ""
+      tags: ["iOS", "iPhone", "iPad", "AppStore"]
+  android:
+    sdk:
+      active: 
+        status: true
+        version: r10e
+        arch: darwin-x86_64
+    ndk:
+      active: 
+        status: true
+        version: r10e
+        arch: darwin-x86_64
+      releases:
+        quick_active: r10e
+        active: ["r10e", "r13b", "r12b", "r11c"]
+        valid: ["r13b", "r13", "r12", "r12b", "r11c", "r11b", "r11", "r10e"]
+        download: 
+          - darwin:
+            status: true
+            template:
+              download:
+                http: https://dl.google.com/android/repository/android-ndk-${{.WORKSTATION_NAME}}-${{.WORKSTATION_NAME}}-${{.WORKSTATION_ARCH}}.zip
+            archs: 
+              active: ["x86_64"]
+              valid: ["x86_64"]
+          - linux:
+            status: true
+            template:
+              download:
+                http: https://dl.google.com/android/repository/android-ndk-${{.WORKSTATION_NAME}}-${{.WORKSTATION_NAME}}-${{.WORKSTATION_ARCH}}.zip
+            archs: 
+              active: ["x86_64"]
+              valid: ["x86_64"]
+          - windows:
+            status: true
+            template:
+              download:
+                http: https://dl.google.com/android/repository/android-ndk-${{.WORKSTATION_NAME}}-${{.WORKSTATION_NAME}}-${{.WORKSTATION_ARCH}}.zip
+            archs: 
+              active: ["x86", "x86_64"]
+              valid: ["x86", "x86_64"]
+  windows:
+  linux:

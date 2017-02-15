@@ -1,0 +1,39 @@
+# Copyright (c) 2017, Luc Michalski
+# All rights reserved.
+
+# Ref: https://github.com/mono/CppSharp
+
+# macros:
+# hunter_unity3d_wrapper_cleanup
+# hunter_unity3d_wrapper_parse
+# hunter_unity3d_wrapper_copy
+# hunter_unity3d_wrapper_generate
+
+# hunter_unity3d_wrapper_skeleton_info
+# hunter_unity3d_wrapper_skeleton_get_path
+# hunter_unity3d_wrapper_skeleton_set_path
+
+# hunter_unity3d_wrapper_test
+
+# args:
+# - unity_plugin_name
+# - unity_plugin_skeleton_output_dir
+# - unity_plugin_wrapper_headers (eg. NativeCXX-CSHARP_wrap.h)
+# - unity_plugin_wrapper_sourcess (eg. NativeCXX-CSHARP_wrap.cxx)
+MACRO(hunter_unity3d_wrapper_cleanup)
+
+	# examples: 
+	# ./_deploy/Assets/NativeXForUnity/Plugins/NativeCXX-CSHARP_wrap.cxx
+	# ./_deploy/Assets/NativeXForUnity/Plugins/NativeCXX-CSHARP_wrap.cxx
+	SET(unity_plugin_wrapper_prefix "${unity_plugin_skeleton_output_dir}/${unity_plugin_name}/Plugins/${unity_plugin_name}-")
+
+	# 
+	# examples: NativeCXX-CSHARP_wrap.h, NativeCXX-CSHARP_wrap.cxx
+	SET(unity_native_clean_list ${unity_plugin_wrapper_headers} ${unity_plugin_wrapper_sourcess}) 
+
+	ADD_CUSTOM_COMMAND(TARGET ${unity_plugin_name}
+		PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E remove ${UNITY_PLUGIN_DEST_DIR}/detail/${CONFIG_PROJECT_NAME}CSHARP_wrap.cxx ${UNITY_PLUGIN_DEST_DIR}/detail/${CONFIG_PROJECT_NAME}CSHARP_wrap.h
+	)
+
+ENDMACRO()

@@ -1,0 +1,43 @@
+using UnityEngine;
+using System;
+
+namespace @UnityNativePluginX@
+{
+    abstract public class Disposable@NATIVE_LIB_NAME@Object : DisposableObject
+    {
+
+        internal IntPtr nativeObj;
+                
+        protected Disposable@NATIVE_LIB_NAME@Object ()
+            : this(true)
+        {
+        }
+
+        protected Disposable@NATIVE_LIB_NAME@Object (IntPtr ptr)
+            : this(ptr, true)
+        {
+        }
+
+        protected Disposable@NATIVE_LIB_NAME@Object (bool isEnabledDispose)
+            : this(IntPtr.Zero, isEnabledDispose)
+        {
+        }
+
+        protected Disposable@NATIVE_LIB_NAME@Object (IntPtr ptr, bool isEnabledDispose)
+            : base(isEnabledDispose)
+        {
+            this.nativeObj = ptr;
+        }
+
+        protected override void Dispose (bool disposing)
+        {
+            try {
+                if (disposing) {
+                }
+                nativeObj = IntPtr.Zero;
+            } finally {
+                base.Dispose (disposing);
+            }
+        }
+    }
+}

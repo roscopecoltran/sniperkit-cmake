@@ -1,0 +1,49 @@
+# Copyright (c) 2017, Luc Michalski
+# All rights reserved.
+
+# ┌──────────────────────────────────────────────────────────────────┐
+# │  Hunter settings                                                 │
+# └──────────────────────────────────────────────────────────────────┘
+
+SET(HUNTER_GATE_RAW_CONTENT_ENDPONT https://raw.githubusercontent.com/hunter-packages/gate/master/cmake)
+SET(HUNTER_GATE_BOOSTRAPFILE_URL          "${HUNTER_GATE_RAW_CONTENT_ENDPONT}/${HUNTER_GATE_FILENAME}.cmake")
+SET(HUNTER_GATE_BOOSTRAPFILE_LOCAL        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/${HUNTER_GATE_FILENAME}.cmake")
+SET(HUNTER_GATE_BOOSTRAPFILE_EXPECTED_MD5 "c48c9fb38b917acee929ae0e85ffa007")
+
+# ┌──────────────────────────────────────────────────────────────────┐
+# │  Hunter Config                                                 	 │
+# └──────────────────────────────────────────────────────────────────┘
+
+# if option is defined in HunterGate() func. (eg. FILEPATH "cmake/01-config.cmake)
+SET(HUNTER_CONFIG_OVERRIDE 01-config)
+
+# nb. add FILEPATH, LOCAL OR GLOBAL config filepath router 
+# download if HunterGate.cmake is missing
+IF(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Hunter/config.cmake")
+	FILE(WRITE  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Hunter/config.cmake "# Sniper Project - Luc Michalski - 2017")
+	FILE(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Hunter/config.cmake "# Package: ${CURRENT_PROJECT_NAME} - VERSION: ${version}")
+ENDIF()
+
+# download if HunterGate.cmake is missing
+IF(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/${HUNTER_GATE_FILENAME}.cmake")
+	FILE(DOWNLOAD ${HUNTER_GATE_BOOSTRAPFILE_URL} ${HUNTER_GATE_BOOSTRAPFILE_LOCAL} EXPECTED_MD5 ${HUNTER_GATE_BOOSTRAPFILE_EXPECTED_MD5})
+ENDIF()
+
+# load custom local config
+INCLUDE("${CMAKE_CURRENT_SOURCE_DIR}/cmake/${HUNTER_GATE_FILENAME}.cmake")
+
+# ┌──────────────────────────────────────────────────────────────────┐
+# │  Hunter Gate                                                 	 │
+# └──────────────────────────────────────────────────────────────────┘
+
+# bootstrap hunter gate helpers
+HunterGate(
+	URL "https://github.com/ruslo/hunter/archive/${HUNTER_GATE_VERSION}.tar.gz"
+	SHA1 "${HUNTER_GATE_SHA1}"
+	LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
+	#FILEPATH "cmake/Hunter/config.cmake"
+	#GLOBAL myconfig
+	# load `${HUNTER_SELF}/cmake/configs/myconfig.cmake` instead of
+	# default `${HUNTER_SELF}/cmake/configs/default.cmake`
+)
+

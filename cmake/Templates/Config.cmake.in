@@ -1,0 +1,74 @@
+# Config file for the @PROJECT_NAME@ package.
+#
+# Note:
+#   @PROJECT_NAME@ and this config file depends on opencv,
+#   so put `find_package(OpenCV)` before searching @PROJECT_NAME@
+#   via `find_package(@PROJECT_NAME@)`. All other lib/includes
+#   dependencies are hard coded in the file
+#
+# After successful configuration the following variables
+# will be defined:
+#
+#   @PROJECT_NAME@_INCLUDE_DIRS - @PROJECT_NAME@ include directories
+#   @PROJECT_NAME@_LIBRARIES    - libraries to link against
+#   @PROJECT_NAME@_DEFINITIONS  - a list of definitions to pass to compiler
+#
+#   @PROJECT_NAME@_HAVE_CUDA    - signals about CUDA support
+#   @PROJECT_NAME@_HAVE_CUDNN   - signals about cuDNN support
+
+
+# OpenCV dependency (optional)
+
+if(@USE_OPENCV@)
+  if("@OpenCV_VERSION@" MATCHES "^2\\.")
+    find_package(OpenCV REQUIRED COMPONENTS core highgui imgproc)
+  else()
+    find_package(OpenCV REQUIRED COMPONENTS core highgui imgproc imgcodecs)
+  endif()
+endif()
+
+# Compute paths
+get_filename_component(@PROJECT_NAME@_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set({@PROJECT_NAME@_INCLUDE_DIRS "@PROJECT_INCLUDE_DIRS@")
+
+@PROJECT_INSTALL_INCLUDE_DIR_APPEND_COMMAND@
+
+# Our library dependencies
+if(NOT TARGET @CORE_LIBRARY_TARGET@ AND NOT @CORE_LIBRARY_TARGET@_BINARY_DIR)
+  include("${@PROJECT_NAME@_CMAKE_DIR}/@PROJECT_NAME@Targets.cmake")
+endif()
+
+# List of IMPORTED libs created by @PROJECT_NAME@Targets.cmake
+set(@PROJECT_NAME@_LIBRARIES @CORE_LIBRARY_TARGET@)
+
+# Definitions
+set(@PROJECT_NAME@_DEFINITIONS "@PROJECT_NAME_DEFINITIONS@")
+
+# Cuda support variables
+set(Caffe_CPU_ONLY @CPU_ONLY@)
+set(Caffe_HAVE_CUDA @HAVE_CUDA@)
+set(Caffe_HAVE_CUDNN @HAVE_CUDNN@)
+
+# Dependencies {
+#find_package(Boost 1.46 REQUIRED COMPONENTS system thread filesystem)
+#find_package(Threads REQUIRED)
+#find_package(glog CONFIG REQUIRED)
+#find_package(gflags CONFIG REQUIRED)
+#find_package(Protobuf CONFIG REQUIRED)
+#find_package(ZLIB CONFIG REQUIRED)
+#find_package(szip CONFIG REQUIRED)
+#find_package(hdf5 CONFIG REQUIRED)
+
+if(NOT APPLE)
+  if("@BLAS@" STREQUAL "Atlas" OR "@BLAS@" STREQUAL "atlas")
+    find_package(Atlas REQUIRED)
+  elseif("@BLAS@" STREQUAL "Open" OR "@BLAS@" STREQUAL "open")
+    find_package(OpenBLAS CONFIG REQUIRED)
+  elseif("@BLAS@" STREQUAL "MKL" OR "@BLAS@" STREQUAL "mkl")
+    find_package(MKL REQUIRED)
+  endif()
+elseif(APPLE)
+  find_package(vecLib REQUIRED)
+endif()
+# }
+

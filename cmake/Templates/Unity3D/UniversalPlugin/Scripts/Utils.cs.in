@@ -1,0 +1,219 @@
+using UnityEngine;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.IO;
+
+namespace @UnityNativePluginX@
+{
+    public static class Utils
+    {
+        /**
+        * Gets the @UnityNativePluginX@ Version.
+        */
+        public static string getVersion ()
+        {
+            return "0.0.2";
+        }
+
+        /**
+        * Gets the path of the file in the "StreamingAssets" folder.
+        * <p>
+        * <br>Set the relative folder path to the starting point of the "StreamingAssets" folder. e.g. "foobar.txt" or "hogehoge/foobar.txt".
+        * <br>[Android]The file in "StreamingAssets" folder is copied to Application.persistentDataPath.If refresh flag is false, when the file has already been copied, the file is not copied.If refresh flag is true, the file is always copyied. 
+        * <br>[WebGL]If the file has not yet been copied to WebGL's FileSystem, you need to use getFilePathAsync() at first.
+        * 
+        * @param filepath Set the relative folder path to the starting point of the "StreamingAssets" folder. e.g. "foobar.txt" or "hogehoge/foobar.txt".
+        * @param refresh [Android]If refresh flag is false, when the file has already been copied, the file is not copied.If refresh flag is true, the file is always copyied. 
+        */
+        public static string getFilePath (string filepath, bool refresh = false)
+        {
+            filepath = filepath.TrimStart (chTrims);
+            
+            #if (UNITY_ANDROID) && !UNITY_EDITOR
+            string srcPath = Application.streamingAssetsPath + Path.AltDirectorySeparatorChar + filepath;
+            string destPath = Application.persistentDataPath + Path.AltDirectorySeparatorChar + "@unitynativepluginx@" + Path.AltDirectorySeparatorChar + filepath;
+            
+            //Debug.Log("Extracting file from: "+ srcPath);
+            //Debug.Log("Extracting to: "+ destPath);
+            
+            if (!refresh && File.Exists(destPath))
+                return destPath;
+            
+            using (WWW www = new WWW (srcPath)) {
+                while (!www.isDone) {;}
+                
+                if (!string.IsNullOrEmpty(www.error)) {
+                    Debug.LogWarning (www.error);
+                    return String.Empty;
+                }
+                
+                //create Directory
+                String dirPath = Path.GetDirectoryName (destPath);
+                if (!Directory.Exists (dirPath))
+                    Directory.CreateDirectory (dirPath);
+                
+                File.WriteAllBytes (destPath, www.bytes);
+                
+                //if(File.Exists(destPath)){
+                //  Debug.Log("copy success: " + destPath);
+                //}else{
+                //  Debug.Log("copy failure: " + destPath);
+                //}
+            }
+            
+            return destPath;
+            #elif (UNITY_WEBGL) && !UNITY_EDITOR
+            
+            string destPath = Path.AltDirectorySeparatorChar + "@unitynativepluginx@" + Path.AltDirectorySeparatorChar + filepath;
+            
+            if (File.Exists(destPath)){
+                return destPath;
+            }else{
+                return String.Empty;
+            }
+            #else
+            
+            string destPath = Application.streamingAssetsPath + Path.AltDirectorySeparatorChar + filepath;
+            
+            if (File.Exists (destPath)) {
+                return destPath;
+            } else {
+                return String.Empty;
+            }
+            #endif
+            
+        }
+        
+        /**
+        * Gets the path of the file in the "StreamingAssets" folder to asynchronous.
+        * <p>
+        * <br>Set the relative folder path to the starting point of the "StreamingAssets" folder. e.g. "foobar.txt" or "hogehoge/foobar.txt".
+        * <br>[Android]The file in "StreamingAssets" folder is copied to Application.persistentDataPath.If refresh flag is false, when the file has already been copied, the file is not copied.If refresh flag is true, the file is always copyied. 
+        * <br>[WebGL]The file in "StreamingAssets" folder is copied to WebGL's FileSystem.If refresh flag is false, when the file has already been copied, the file is not copied.If refresh flag is true, the file is always copyied. 
+        * 
+        * @param filepath Set the relative folder path to the starting point of the "StreamingAssets" folder. e.g. "foobar.txt" or "hogehoge/foobar.txt".
+        * @param callback Callback function that is called when process is completed.
+        * @param refresh [Android][WebGL]If refresh flag is false, when the file has already been copied, the file is not copied.If refresh flag is true, the file is always copyied.
+        */
+        public static IEnumerator getFilePathAsync (string filepath, Action<string> callback, bool refresh = false)
+        {
+            filepath = filepath.TrimStart (chTrims);
+            
+            #if (UNITY_ANDROID) && !UNITY_EDITOR
+            string srcPath = Application.streamingAssetsPath + Path.AltDirectorySeparatorChar + filepath;
+            string destPath = Application.persistentDataPath + Path.AltDirectorySeparatorChar + "@unitynativepluginx@" + Path.AltDirectorySeparatorChar + filepath;
+            
+            if (!refresh && File.Exists(destPath)){
+                callback (destPath);
+            } else {
+                using (WWW www = new WWW (srcPath)) {
+                    yield return www;
+                    
+                    if (!string.IsNullOrEmpty(www.error)) {
+                        Debug.LogWarning (www.error);
+                        callback (String.Empty);
+                    }
+                    
+                    //create Directory
+                    String dirPath = Path.GetDirectoryName (destPath);
+                    if (!Directory.Exists (dirPath))
+                        Directory.CreateDirectory (dirPath);
+                    
+                    File.WriteAllBytes(destPath, www.bytes);
+                }
+                callback (destPath);
+            }
+            #elif (UNITY_WEBGL) && !UNITY_EDITOR
+            
+            string srcPath = Application.streamingAssetsPath + Path.AltDirectorySeparatorChar + filepath;
+            string destPath = Path.AltDirectorySeparatorChar + "@unitynativepluginx@" + Path.AltDirectorySeparatorChar + filepath;
+            
+            if (!refresh && File.Exists(destPath)){
+                callback (destPath);
+            } else {
+                using (WWW www = new WWW (srcPath)) {
+                    yield return www;
+                    
+                    if (!string.IsNullOrEmpty(www.error)) {
+                        Debug.LogWarning (www.error);
+                        callback (String.Empty);
+                    }
+                    
+                    //create Directory
+                    String dirPath = Path.GetDirectoryName (destPath);
+                    if (!Directory.Exists (dirPath))
+                        Directory.CreateDirectory (dirPath);
+                    
+                    File.WriteAllBytes(destPath, www.bytes);
+                }
+                callback (destPath);
+            }
+            #else
+            
+            string destPath = Application.streamingAssetsPath + Path.AltDirectorySeparatorChar + filepath;
+            
+            if (File.Exists (destPath)) {
+                callback (destPath);
+            } else {
+                callback (String.Empty);
+            }
+            #endif
+            
+            yield break;
+        }
+        
+        private static char[] chTrims = {
+            '.',
+            Path.DirectorySeparatorChar,
+            Path.AltDirectorySeparatorChar
+        };
+
+        /**
+        * Sets the debug mode.
+        * <p>
+        * <br>if true, The error log of the Native side OpenCV will be displayed on the Unity Editor Console.
+        * <br>This method is supported in WIN, MAC and LINUX.
+        * <br>Please use as follows.
+        * <br>Utils.setDebugMode(true);
+        * <br>aaa
+        * <br>bbb
+        * <br>ccc
+        * <br>Utils.setDebugMode(false);
+        * 
+        * @param debugMode
+        */
+        public static void setDebugMode (bool debugMode)
+        {
+            #if (UNITY_PRO_LICENSE || UNITY_5) && (UNITY_STANDALONE || UNITY_EDITOR)
+            @UnityNativePluginX@_SetDebugMode (debugMode);
+
+                        if (debugMode) {
+                @UnityNativePluginX@_SetDebugLogFunc (debugLogFunc);
+                //@UnityNativePluginX@_DebugLogTest ();
+
+                        } else {
+                @UnityNativePluginX@_SetDebugLogFunc (null);
+                        }
+            #endif
+        }
+
+
+        #if (UNITY_PRO_LICENSE || UNITY_5) && (UNITY_STANDALONE || UNITY_EDITOR)
+
+        private delegate void DebugLogDelegate (string str);
+        
+        private static DebugLogDelegate debugLogFunc = msg => Debug.LogError (msg);
+
+        [DllImport ("@unitynativepluginx@")]
+        private static extern void @UnityNativePluginX@_SetDebugMode (bool flag);
+
+        [DllImport ("@unitynativepluginx@")]
+        private static extern void @UnityNativePluginX@_SetDebugLogFunc (DebugLogDelegate func);
+
+        [DllImport ("@unitynativepluginx@")]
+        private static extern void @UnityNativePluginX@_DebugLogTest ();
+        #endif
+    }
+}

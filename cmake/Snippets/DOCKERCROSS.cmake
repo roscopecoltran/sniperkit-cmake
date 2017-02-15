@@ -1,0 +1,1 @@
+./bin/dockercross/dockcross-windows-x64 python ./bin/polly/bin/build.py --toolchain=osx-10-12 --verbosity-level full --config Release --reconfig --clear --install --framework --fwd CMAKE_XCODE_ATTRIBUTE_OSX_DEPLOYMENT_TARGET=10.10 CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH=NO BUILD_SHARED_LIBS=ON CMAKE_OSX_DEPLOYMENT_TARGET=10.10 HUNTER_CONFIGURATION_TYPES=Release --tail 25 --jobs 4

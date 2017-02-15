@@ -1,0 +1,400 @@
+# Copyright (c) 2017, Luc Michalski
+# All rights reserved.
+
+#
+# @CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH@
+# @HUNTER_CONFIGURATION_TYPES@
+# @BUILD_SHARED_LIBS@
+# @CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET@
+#
+# 
+# @UNITY3D_NATIVE_X_TOOLCHAIN_IOS@
+# @UNITY3D_NATIVE_X_TOOLCHAIN_IOS_ONLY_ACTIVE_ARCH@
+# @UNITY3D_NATIVE_X_TOOLCHAIN_IOS_VALID_ARCHS_SIM@
+#
+# @UNITY3D_NATIVE_X_TOOLCHAIN_OSX@
+# @UNITY3D_NATIVE_X_TOOLCHAIN_OSX_ONLY_ACTIVE_ARCH@
+# @UNITY3D_NATIVE_X_TOOLCHAIN_OSX_VALID_ARCHS@
+#
+# @UNITY3D_NATIVE_X_TOOLCHAIN_LINUX@
+# @UNITY3D_NATIVE_X_TOOLCHAIN_LINUX_ONLY_ACTIVE_ARCH@
+# @UNITY3D_NATIVE_X_TOOLCHAIN_LINUX_VALID_ARCHS@
+#
+ANDROID_NDK_VERSION="r10e"
+ANDROID_API_VERSION="21"
+
+#ANDROID_ABI=arm64-v8a
+#ANDROID_ABI=x86-64
+#ANDROID_ABI=x86
+#ANDROID_ABI=armeabi-v7a
+ANDROID_ABI=mips64
+#ANDROID_ABI=mips
+ 
+# armeabi-v7a;x86;UWP
+# @UNITY3D_NATIVE_X_TOOLCHAIN_ANDROID_ONLY_ACTIVE_ARCH@
+#
+# printenv | grep -i android
+#
+# ANDROID_NDK_r11c=/Volumes/HardDrive/gocommerce/src/github.com/roscopecoltran/sniper-seeds/Android/Android-NDK/.downloads/android-ndk-r11c
+# ANDROID_HOME=/usr/local/opt/android-sdk
+# ANDROID_NDK_r10e=/Volumes/HardDrive/gocommerce/src/github.com/roscopecoltran/sniper-seeds/Android/Android-NDK/.downloads/android-ndk-r10e
+# ANDROID_NDK_r13b=/Volumes/HardDrive/gocommerce/src/github.com/roscopecoltran/sniper-seeds/Android/Android-NDK/.downloads/android-ndk-r13b
+# ANDROID_NDK_r12b=/Volumes/HardDrive/gocommerce/src/github.com/roscopecoltran/sniper-seeds/Android/Android-NDK/.downloads/android-ndk-r12b
+#
+# r10e
+# @UNITY3D_NATIVE_X_TOOLCHAIN_ANDROID_ACTIVE_NDK@
+#
+# 
+# Android valid NDKS
+# r10e;r11c;r13b;r12b
+# @UNITY3D_NATIVE_X_TOOLCHAIN_ANDROID_VALID_NDKS@
+#
+# 19
+# @UNITY3D_NATIVE_X_TOOLCHAIN_ANDROID_ACTIVE_APIS@
+#
+# 16;19;21;
+# @UNITY3D_NATIVE_X_TOOLCHAIN_ANDROID_VALID_APIS@
+#
+# @UNITY3D_NATIVE_X_TOOLCHAIN_ANDROID_VALID_ABIS@
+#
+# @UNITY3D_NATIVE_X_TOOLCHAIN_ANDROID_ABI_VERSION@
+# @UNITY3D_NATIVE_X_TOOLCHAIN_ANDROID_NDK_VERSION@
+# @UNITY3D_NATIVE_X_TOOLCHAIN_ANDROID_API_VERSION@
+#
+# PhoneSDK81;SDK81;UWP
+# @UNITY3D_NATIVE_X_TOOLCHAIN_VALID@
+# @UNITY3D_NATIVE_X_TOOLCHAIN_WSA_PHONESDK81@
+# @UNITY3D_NATIVE_X_TOOLCHAIN_WSA_SDK81@
+# @UNITY3D_NATIVE_X_TOOLCHAIN_WSA_UWP@
+
+
+#######################
+# Platform settings
+#######################
+
+    # ┌──────────────────────────────────────────────────────────────────┐
+    # │  Xcode                                                           │
+    # └──────────────────────────────────────────────────────────────────┘
+
+    STRING(COMPARE EQUAL "${CMAKE_GENERATOR}" "Xcode" is_xcode)
+
+    # ┌──────────────────────────────────────────────────────────────────┐
+    # │  iOS/iPAD                                                        │
+    # └──────────────────────────────────────────────────────────────────┘
+    # build.py  --toolchain=@UNITY_NATIVE_X_TOOLCHAIN_IOS_IPHONE@ \
+    #           --clear \
+    #           --reconfig \
+    #           --install \
+    #           --config=Release \
+    #           --jobs 4 \
+    #           --fwd HUNTER_CONFIGURATION_TYPES=Release
+    STRING(COMPARE EQUAL "${CMAKE_OSX_SYSROOT}" "iphoneos" is_ios)
+
+    # ┌──────────────────────────────────────────────────────────────────┐
+    # │  MacOSX                                                          │
+    # └──────────────────────────────────────────────────────────────────┘
+
+    #  build.py --toolchain=osx-10-12 --clear --reconfig --install --config=Release --jobs 4 --fwd HUNTER_CONFIGURATION_TYPES=Release
+    IF(is_xcode AND NOT is_ios)
+      SET(is_osx TRUE)
+    ELSE()
+      SET(is_osx FALSE)
+    ENDIF()
+
+    # ┌──────────────────────────────────────────────────────────────────┐
+    # │  Linux                                                           │
+    # └──────────────────────────────────────────────────────────────────┘
+    #  build.py --toolchain=dockercross-gcc --clear --reconfig --install --config=Release --jobs 4 --fwd HUNTER_CONFIGURATION_TYPES=Release
+    STRING(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
+
+    # ┌──────────────────────────────────────────────────────────────────┐
+    # │  Android                                                         │
+    # └──────────────────────────────────────────────────────────────────┘
+
+    # Android
+    SET(is_android ${ANDROID}) # syntax compatibility (passed through the command line as an argument)
+    #  build.py --toolchain=android-ndk... --clear --reconfig --install --config=Release --jobs 4 --fwd HUNTER_CONFIGURATION_TYPES=Release
+    # eg:
+    # android-ndk-r11c-api-21-armeabi-v7a-neon
+    # android-ndk-r11c-api-21-x86
+    # android-ndk-r11c-api-21-x86-64
+    # android-ndk-r11c-api-21-arm64-v8a
+    # android-ndk-r10e-api-21-arm64-v8a-clang-35
+    # android-ndk-r10e-api-21-arm64-v8a-gcc-49-hid-sections
+    # android-ndk-r10e-api-21-arm64-v8a-gcc-49-hid
+    # android-ndk-r10e-api-21-arm64-v8a-gcc-49
+    # android-ndk-r10e-api-21-arm64-v8a
+    # android-ndk-r10e-api-21-armeabi-v7a-neon-clang-35
+    # android-ndk-r10e-api-21-armeabi-v7a-neon-hid-sections
+    # android-ndk-r10e-api-21-armeabi-v7a-neon
+    # android-ndk-r10e-api-21-armeabi-v7a
+    # android-ndk-r10e-api-21-armeabi
+    # android-ndk-r10e-api-21-mips
+    # android-ndk-r10e-api-21-mips64
+    # android-ndk-r10e-api-21-x86-64-hid-sections
+    # android-ndk-r10e-api-21-x86-64-hid
+    # android-ndk-r10e-api-21-x86-64
+    # android-ndk-r10e-api-21-x86
+    # ┌──────────────────────────────────────────────────────────────────┐
+    # │  Windows (WSA)                                                   │
+    # └──────────────────────────────────────────────────────────────────┘
+
+    # WSA
+    IF(WIN32 OR WIN64 OR MSVC)
+      SET(is_msvc TRUE)
+      IF( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+        SET(PLATFORM win64)
+        SET(is_msvc_64 TRUE)
+      ELSE()
+        SET(PLATFORM win32)
+        SET(is_msvc_32 TRUE)
+      ENDIF()
+    ENDIF(WIN32 OR WIN64 OR MSVC)
+
+#######################
+# Compilation flags
+#######################
+
+# ┌──────────────────────────────────────────────────────────────────┐
+# │  Windows (WSA)                                                   │
+# └──────────────────────────────────────────────────────────────────┘
+IF(is_msvc_32)
+
+  SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /MP" ) # Multiprocessor compilation
+  add_definitions("-D_CRT_SECURE_NO_WARNINGS") #  warning C4996
+  SET(UNITY_PLUGIN_FILE_NAME "${UNITY_PLUGIN_LIBRABRY_NAME}.dll")
+  SET(UNITY_PLUGIN_DEST_DIR "${UNITY_PLUGIN_ROOT_PATH}/Assets/${UNITY_PLUGIN_NAME}/Plugins/x86/")
+
+# WSA 
+ELSEIF(is_msvc_64)
+  MESSAGE("******* WIN64")
+  SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /MP" ) # Multiprocessor compilation
+  add_definitions("-D_CRT_SECURE_NO_WARNINGS") #  warning C4996
+  SET(UNITY_PLUGIN_FILE_NAME "${UNITY_PLUGIN_LIBRABRY_NAME}.dll")
+  SET(UNITY_PLUGIN_DEST_DIR "${UNITY_PLUGIN_ROOT_PATH}/Assets/${UNITY_PLUGIN_NAME}/Plugins/x86_64/")
+
+# ┌──────────────────────────────────────────────────────────────────┐
+# │  iOS/iPAD                                                        │
+# └──────────────────────────────────────────────────────────────────┘
+ELSEIF(is_ios)
+  MESSAGE("***** iOS")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -fembed-bitcode")
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fembed-bitcode")
+  SET(UNITY_PLUGIN_FILE_NAME "${UNITY_PLUGIN_LIBRABRY_NAME}.a")
+  SET(UNITY_PLUGIN_DEST_DIR "${UNITY_PLUGIN_ROOT_PATH}/Assets/${UNITY_PLUGIN_NAME}/Plugins/iOS/")
+  SET(TARGET_EXTRA_ARG "MACOSX_BUNDLE")
+  SET(MACOSX_BUNDLE_GUI_IDENTIFIER "${CONFIG_BUNDLE_GUI_IDENTIFIER}.\${PRODUCT_NAME:identifier}")
+  SET(STRIP_ARGS -S -x)
+  #SET(SOURCES ${SOURCES} "${SOURCE_DIR}/${UNITY_PLUGIN_NAME}/detail/platform_helpers.mm")
+
+# ┌──────────────────────────────────────────────────────────────────┐
+# │  MacOSX                                                          │
+# └──────────────────────────────────────────────────────────────────┘
+ELSEIF(is_osx)
+
+  SET(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++")
+  SET(CMAKE_OSX_ARCHITECTURES "x86_64;i386")
+  SET(UNITY_PLUGIN_FILE_NAME "${UNITY_PLUGIN_LIBRABRY_NAME}")
+  SET(UNITY_PLUGIN_DEST_DIR "${UNITY_PLUGIN_ROOT_PATH}/Assets/${UNITY_PLUGIN_NAME}/Plugins/${UNITY_PLUGIN_LIBRABRY_NAME}.bundle/Contents/MacOS/")
+  #  
+  MESSAGE(STATUS "CMAKE_OSX_SYSROOT: ${CMAKE_OSX_SYSROOT}")
+  #MESSAGE(STATUS "CMAKE_OSX_SDK_VERSION: ${CMAKE_OSX_SYSROOT}")
+  # ugly workaround for Version 7.0
+  #SET(CMAKE_OSX_SYSROOT "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk")
+
+  SET(STRIP_ARGS -S -x)
+  #SET(SOURCES ${SOURCES} "${SOURCE_DIR}/${UNITY_PLUGIN_NAME}/detail/platform_helpers.mm")
+
+# ┌──────────────────────────────────────────────────────────────────┐
+# │  Android                                                         │
+# └──────────────────────────────────────────────────────────────────┘
+ELSEIF(is_android)
+
+  MESSAGE("****** Android")
+  SET(UNITY_PLUGIN_FILE_NAME "Android/libs/${ANDROID_ABI}/lib${UNITY_PLUGIN_LIBRABRY_NAME}.so")
+  SET(UNITY_PLUGIN_DEST_DIR "${UNITY_PLUGIN_ROOT_PATH}/Assets/${UNITY_PLUGIN_NAME}/Plugins/Android/libs/${ANDROID_ABI}/")
+
+  #${UNITY_PLUGIN_LIBRABRY_NAME}.bundle/Contents/MacOS/
+
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fvisibility=default -fPIE")
+
+  # prevent linking against libstdc++
+  SET(CMAKE_CXX_CREATE_SHARED_LIBRARY "${CMAKE_CXX_CREATE_SHARED_LIBRARY} -nodefaultlibs -lm -lc -ldl -lgcc")
+  SET(CMAKE_CXX_CREATE_SHARED_MODULE  "${CMAKE_CXX_CREATE_SHARED_MODULE} -nodefaultlibs -lm -lc -ldl -lgcc")
+  SET(CMAKE_CXX_LINK_EXECUTABLE       "${CMAKE_CXX_LINK_EXECUTABLE} -nodefaultlibs -lm -lc -ldl -lgcc -rdynamic -fPIE -pie")
+
+  SET(STRIP_ARGS --strip-unneeded)
+
+# ┌──────────────────────────────────────────────────────────────────┐
+# │  Linux                                                           │
+# └──────────────────────────────────────────────────────────────────┘
+ELSEIF(is_linux)
+
+  MESSAGE("****** Linux")
+
+ENDIF(is_msvc_32)
+
+#######################
+# Library stripping
+#######################
+
+  IF(NOT CMAKE_STRIP)
+    SET(CMAKE_STRIP "echo")
+  ENDIF()
+
+  IF(${CMAKE_STRIP} STREQUAL "CMAKE_STRIP-NOTFOUND")
+    NOT(CMAKE_STRIP "echo")
+  ENDIF()
+
+#######################
+# Deploy native plugin
+#######################
+
+MACRO(hunter_unity3d_deploy_native_plugin)
+
+  IF(HUNTER_UNITY3D_NATIVE_PLUGIN_CXX_WRAPPER)
+
+     ADD_CUSTOM_COMMAND(TARGET ${UNITY_PLUGIN_LIBRABRY_NAME}
+               PRE_BUILD
+               COMMAND ${CMAKE_COMMAND} -E remove ${UNITY_PLUGIN_DEST_DIR}/detail/${CONFIG_PROJECT_NAME}CSHARP_wrap.cxx ${UNITY_PLUGIN_DEST_DIR}/detail/${CONFIG_PROJECT_NAME}CSHARP_wrap.h
+     )
+
+  ENDIF(HUNTER_UNITY3D_NATIVE_PLUGIN_CXX_WRAPPER)
+
+  IF(HUNTER_UNITY3D_NATIVE_PLUGIN_DEPLOY)
+
+     # nm <exe filename> shows the symbols in the file.
+     # file <library filename> shows the symbols in the file.
+
+     ADD_CUSTOM_COMMAND(TARGET ${UNITY_PLUGIN_LIBRABRY_NAME}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${UNITY_PLUGIN_DEST_DIR}
+        # careful, difference between ${UNITY_PLUGIN_LIBRABRY_NAME} and ${CONFIG_PROJECT_LIBRARY_NAME}
+        COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:${UNITY_PLUGIN_LIBRABRY_NAME}>" "${UNITY_PLUGIN_DEST_DIR}/${UNITY_PLUGIN_FILE_NAME}"
+        COMMAND ${CMAKE_COMMAND} -E remove ${UNITY_ASSETS_DIR}/${UNITY_PLUGIN_NAME}/detail/${UNITY_PLUGIN_LIBRABRY_NAME}.cs
+        COMMAND ${CMAKE_COMMAND} -E remove ${UNITY_ASSETS_DIR}/${UNITY_PLUGIN_NAME}/detail/${CONFIG_PROJECT_LIBRARY_NAME}CSHARP_wrap.cxx
+        COMMAND ${CMAKE_COMMAND} -E remove ${UNITY_ASSETS_DIR}/${UNITY_PLUGIN_NAME}/detail${CONFIG_PROJECT_LIBRARY_NAME}CSHARP_wrap.h
+        COMMAND ${CMAKE_STRIP} ${STRIP_ARGS} "${UNITY_PLUGIN_DEST_DIR}/${UNITY_PLUGIN_FILE_NAME}"
+     )
+
+     OPTION(HUNTER_UNITY3D_NATIVE_PLUGIN_PROFILE      "" ON)
+     IF(HUNTER_UNITY3D_NATIVE_PLUGIN_PROFILE)
+
+        # .framework
+        # lipo -info myFramework.framework/MyFramework
+
+		# ┌──────────────────────────────────────────────────────────────────┐
+		# │  output profiling for iOS/iPAD                                   │
+		# └──────────────────────────────────────────────────────────────────┘
+        # iOS - archs=armv7,armv64, extension=*.a
+        IF(is_ios)
+
+           # profile generated output
+           ADD_CUSTOM_COMMAND(TARGET ${UNITY_PLUGIN_LIBRABRY_NAME}
+              POST_BUILD
+              # get info about the generated library 
+              COMMAND file "${UNITY_PLUGIN_DEST_DIR}/${UNITY_PLUGIN_FILE_NAME}" > "${UNITY_PLUGIN_DEST_DIR}/file_library_info-${UNITY_PLUGIN_LIBRABRY_NAME}.txt"
+              # get all symbols from the genrated library
+              COMMAND nm "${UNITY_PLUGIN_DEST_DIR}/${UNITY_PLUGIN_FILE_NAME}" > "${UNITY_PLUGIN_DEST_DIR}/nn_library_symbols-${UNITY_PLUGIN_LIBRABRY_NAME}.txt"
+              # get info about the generated library 
+              COMMAND xcrun -sdk iphoneos lipo -info "${UNITY_PLUGIN_DEST_DIR}/${UNITY_PLUGIN_FILE_NAME}" > "${UNITY_PLUGIN_DEST_DIR}/xcrun_iphoneos_lipo_info-${UNITY_PLUGIN_LIBRABRY_NAME}.txt"
+           )
+
+		# ┌──────────────────────────────────────────────────────────────────┐
+		# │  output profiling for MacOSX                                     │
+		# └──────────────────────────────────────────────────────────────────┘
+        # MacOSX - archs=i386,x86_64, extension=*.bundle
+        ELSEIF(is_osx)
+
+           # profile generated output
+           ADD_CUSTOM_COMMAND(TARGET ${UNITY_PLUGIN_LIBRABRY_NAME}
+              POST_BUILD
+              # get info about the generated library 
+              COMMAND file "${UNITY_PLUGIN_DEST_DIR}/${UNITY_PLUGIN_FILE_NAME}" > "${UNITY_PLUGIN_DEST_DIR}/file_library_info-${UNITY_PLUGIN_LIBRABRY_NAME}.txt"
+              # get all symbols from the genrated library
+              COMMAND nm "${UNITY_PLUGIN_DEST_DIR}/${UNITY_PLUGIN_FILE_NAME}" > "${UNITY_PLUGIN_DEST_DIR}/nn_library_symbols-${UNITY_PLUGIN_LIBRABRY_NAME}.txt"
+              # get info about the generated library 
+              COMMAND xcrun -sdk macosx lipo -info "${UNITY_PLUGIN_DEST_DIR}/${UNITY_PLUGIN_FILE_NAME}" > "${UNITY_PLUGIN_DEST_DIR}/xcrun_macosx_lipo_info-${UNITY_PLUGIN_LIBRABRY_NAME}.txt"
+           )
+
+		# ┌──────────────────────────────────────────────────────────────────┐
+		# │  output profiling forAndroid                                     │
+		# └──────────────────────────────────────────────────────────────────┘
+        # Android - archs=x86,armebi-v7, extension=*.so
+        ELSEIF(is_android)
+
+		# ┌──────────────────────────────────────────────────────────────────┐
+		# │  output profiling forLinux                                       │
+		# └──────────────────────────────────────────────────────────────────┘
+        # Linux - archs=x86,x86_64, extension=*.so
+        ELSEIF(is_linux)
+
+		# ┌──────────────────────────────────────────────────────────────────┐
+		# │  output profiling forWindows (WSA)                               │
+		# └──────────────────────────────────────────────────────────────────┘
+        # WSA 32/64 bits - archs=x86,x64, extension=*.dll
+        ELSEIF(is_msvc)
+
+	        # WSA 32 bits - archs=x86, extension=*.dll
+        	IF(is_msvc_32)
+	
+	        # WSA 64 bits - archs=x86_x64/x64, extension=*.dll
+        	ELSEIF(is_msvc_64)
+
+        	# Unkown
+        	ELSE()
+
+        	ENDIF(is_msvc_32)
+
+        ENDIF(is_ios)
+
+     ENDIF(HUNTER_UNITY3D_NATIVE_PLUGIN_PROFILE)
+
+    # enable c++11 via -std=c++11 when compiler is clang or gcc
+	# ┌──────────────────────────────────────────────────────────────────┐
+	# │  compilation using Apple Clang                                   │
+	# └──────────────────────────────────────────────────────────────────┘
+	IF( "\"${CMAKE_CXX_COMPILER_ID}\"" MATCHES AppleClang)
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+		#target_compile_features(${CONFIG_PROJECT_LIBRARY_NAME} PRIVATE cxx_nonstatic_member_init)
+		#target_compile_features(${UNITY_PLUGIN_LIBRABRY_NAME} PRIVATE cxx_nonstatic_member_init)
+
+	# ┌──────────────────────────────────────────────────────────────────┐
+	# │  compilation using Clang                                         │
+	# └──────────────────────────────────────────────────────────────────┘
+	ELSEIF( "\"${CMAKE_CXX_COMPILER_ID}\"" MATCHES Clang)
+		target_compile_features(${CONFIG_PROJECT_LIBRARY_NAME} PRIVATE cxx_nonstatic_member_init)
+		target_compile_features(${UNITY_PLUGIN_LIBRABRY_NAME} PRIVATE cxx_nonstatic_member_init)
+
+	# ┌──────────────────────────────────────────────────────────────────┐
+	# │  compilation using GNU                                           │
+	# └──────────────────────────────────────────────────────────────────┘
+	ELSEIF( "\"${CMAKE_CXX_COMPILER_ID}\"" MATCHES GNU)
+		#target_compile_features(${CONFIG_PROJECT_LIBRARY_NAME} PRIVATE cxx_nonstatic_member_init)
+		#target_compile_features(${UNITY_PLUGIN_LIBRABRY_NAME} PRIVATE cxx_nonstatic_member_init)
+
+	# ┌──────────────────────────────────────────────────────────────────┐
+	# │  compilation using Intel C++                                     │
+	# └──────────────────────────────────────────────────────────────────┘
+	ELSEIF( "\"${CMAKE_CXX_COMPILER_ID}\"" MATCHES Intel)
+		# using Intel C++
+
+	# ┌──────────────────────────────────────────────────────────────────┐
+	# │  compilation using Visual Studio C++                             │
+	# └──────────────────────────────────────────────────────────────────┘
+	ELSEIF( "\"${CMAKE_CXX_COMPILER_ID}\"" MATCHES MSVC)
+		# using Visual Studio C++
+
+	ENDIF()
+
+	# ┌──────────────────────────────────────────────────────────────────┐
+	# │  CMake fixe(s)                                         			 │
+	# └──────────────────────────────────────────────────────────────────┘
+
+	# fixes compilation with cmake > 3.2.0
+	# http://stackoverflow.com/questions/26841603/arm-linux-androideabi-bin-ld-fatal-error-soname-must-take-a-non-empty-argume
+	STRING(REPLACE "<CMAKE_SHARED_LIBRARY_SONAME_CXX_FLAG><TARGET_SONAME>" "" CMAKE_CXX_CREATE_SHARED_MODULE "${CMAKE_CXX_CREATE_SHARED_MODULE}")
+
+  ENDIF(HUNTER_UNITY3D_NATIVE_PLUGIN_DEPLOY)
+
+ENDMACRO()
